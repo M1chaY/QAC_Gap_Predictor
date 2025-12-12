@@ -38,5 +38,6 @@ Thumbs.db
 
 # Project specific
 data/qm9/
+data/r4n/mol_files/
 !data/.gitkeep
 *.log

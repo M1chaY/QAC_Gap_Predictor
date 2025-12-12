@@ -1,3 +1,11 @@
 rdkit>=2022.9.1
 pandas>=1.5.0
+numpy
+torch
+torch-geometric
+scikit-learn
+matplotlib
+joblib>=1.0.0
 pubchempy>=1.0.4
+ipython
+tqdm

@@ -14,13 +14,12 @@ import numpy as np
 from pathlib import Path
 import torch
 from torch_geometric.loader import DataLoader
-from src import R4NGapDataset, GapPredictionGNN, train_epoch, evaluate
+from src import load_graph_dataset, GapPredictionGNN, train_epoch, evaluate
 import sys
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-MODEL_DIR = PROJECT_ROOT / "models"
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DATA_DIR = PROJECT_ROOT / "data"
-QM9_PROCESSED_DIR = DATA_DIR / "qm9" / "processed_data"
+MODEL_DIR = PROJECT_ROOT / "models"
 
 
 def check_qm9_data():
@@ -31,35 +30,30 @@ def check_qm9_data():
     print("Step 1: Checking QM9 Final Data")
     print("="*60)
     
-    qm9_final_path = QM9_PROCESSED_DIR / "qm9_final.csv"
+    qm9_path = DATA_DIR / "qm9.csv"
     
-    if qm9_final_path.exists():
-        print(f"\n✓ QM9 final data found: {qm9_final_path}")
+    if qm9_path.exists():
+        print(f"\nQM9 final data found: {qm9_path}")
         # 显示数据信息
-        df = pd.read_csv(qm9_final_path)
-        print(f"  Total samples: {len(df)}")
-        print(f"  Columns: {', '.join(df.columns)}")
-        return True, qm9_final_path
+        df = pd.read_csv(qm9_path)
+        print(f"Total samples: {len(df)}")
+        print(f"Columns: {', '.join(df.columns)}")
+        return True, qm9_path
     else:
-        print(f"\n✗ QM9 final data not found: {qm9_final_path}")
+        print(f"\nERROR: QM9 final data not found: {qm9_path}")
         print("\nPlease run the following command first:")
         print("  python scripts/extract_qm9_data.py")
-        print("\nThis will:")
-        print("  1. Download QM9 dataset from PyG (if not present)")
-        print("  2. Extract and process all QM9 data")
-        print("  3. Filter molecules with F or valence errors")
-        print("  4. Generate qm9_final.csv with SMILES and gap columns")
         return False, None
 
 
-def pretrain_on_qm9(model, device, qm9_csv_path, num_epochs=100, batch_size=32):
+def pretrain_on_qm9(model, device, qm9_path, num_epochs=100, batch_size=32):
     """
     在QM9数据集上预训练模型
     
     Args:
         model: GNN模型
         device: 训练设备
-        qm9_csv_path: QM9数据CSV路径
+        qm9_path: QM9数据CSV路径
         num_epochs: 训练轮数
         batch_size: 批次大小
     
@@ -71,10 +65,10 @@ def pretrain_on_qm9(model, device, qm9_csv_path, num_epochs=100, batch_size=32):
     print("="*60)
     
     try:
-        # 使用R4NGapDataset加载QM9数据（统一的特征处理）
-        print(f"\nLoading QM9 data from: {qm9_csv_path}")
-        dataset = R4NGapDataset(qm9_csv_path)
-        print(f"✓ Loaded {len(dataset)} QM9 samples")
+        # 使用build_3d_mol, mol_to_graph处理QM9数据（统一的特征处理）
+        print(f"\nLoading QM9 data from: {qm9_path}")
+        dataset = load_graph_dataset(qm9_path)
+        print(f"Total QM9 samples: {len(dataset)}")
         
         if len(dataset) == 0:
             print("✗ No valid QM9 samples!")
@@ -207,7 +201,7 @@ def main():
     print(f"Device: {device}")
     
     # Step 1: 检查QM9数据
-    has_data, qm9_csv_path = check_qm9_data()
+    has_data, qm9_path = check_qm9_data()
     
     if not has_data:
         print("\n" + "="*60)
@@ -217,7 +211,7 @@ def main():
     
     # 读取一个样本以获取特征维度
     print("\nInitializing model...")
-    temp_dataset = R4NGapDataset(qm9_csv_path)
+    temp_dataset = load_graph_dataset(qm9_path)
     sample_data = temp_dataset[0]
     num_node_features = sample_data.x.shape[1]
     print(f"Node features: {num_node_features}")
@@ -239,7 +233,7 @@ def main():
     success = pretrain_on_qm9(
         model=model,
         device=device,
-        qm9_csv_path=qm9_csv_path,
+        qm9_path=qm9_path,
         num_epochs=1000,
         batch_size=32
     )

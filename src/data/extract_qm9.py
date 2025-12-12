@@ -1,92 +1,69 @@
-"""
-从QM9数据集中提取所有信息，保存为CSV格式
-然后进行清洗和处理
-
-处理流程:
-1. 判断本地是否有qm9数据，如果有就跳过进入下一步；如果没有就从PyG的库中先下载源文件
-2. 解析QM9数据集，获取所有信息，保存一份csv在本地（在qm9目录里新建一个目录保存）
-3. 过滤带F元素的行
-4. 处理smiles，转换为标准SMILES格式
-5. 过滤掉有价态错误的分子（如Explicit valence错误）
-6. 过滤掉带立体化学和手性的SMILES（包含@、/、\等符号）
-7. 最终只保留SMILES和gap两列
-"""
-
 import pandas as pd
 from pathlib import Path
 from torch_geometric.datasets import QM9
-import torch
 from tqdm import tqdm
 from rdkit import Chem
-from rdkit.Chem import Descriptors
-
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DATA_DIR = PROJECT_ROOT / "data"
-QM9_DIR = DATA_DIR / "qm9"
-QM9_PROCESSED_DIR = QM9_DIR / "processed_data"
 
 
-def check_qm9_downloaded():
-    """
-    检查QM9数据是否已下载
-    """
-    print("="*60)
+def _check_qm9(
+        qm9_raw_dir: Path,
+        qm9_processed_dir: Path
+) -> bool:
+    """检查 QM9 数据是否已下载。"""
+    print("=" * 60)
     print("Step 1: Checking QM9 Data Availability")
-    print("="*60)
-    
-    # 检查PyG下载的原始文件
-    qm9_raw_dir = QM9_DIR / "raw"
-    qm9_processed_dir = QM9_DIR / "processed"
-    
+    print("=" * 60)
+
     has_data = False
     if qm9_raw_dir.exists() and qm9_processed_dir.exists():
         raw_files = list(qm9_raw_dir.glob("*"))
         processed_files = list(qm9_processed_dir.glob("*"))
         if len(raw_files) > 0 and len(processed_files) > 0:
-            print(f"\n✓ QM9 data already downloaded")
+            print("\n✓ QM9 data already downloaded")
             print(f"  Raw files: {len(raw_files)}")
             print(f"  Processed files: {len(processed_files)}")
             has_data = True
-    
+
     if not has_data:
-        print(f"\n✗ QM9 data not found, will download from PyG...")
-    
+        print("\n✗ QM9 data not found, will download from PyG...")
+
     return has_data
 
 
-def load_qm9_dataset():
+def _load_qm9(
+        qm9_dir: Path
+) -> QM9:
+    """加载或下载 QM9 数据集。
+
+    参数 ``qm9_dir`` 应该是包含 ``raw`` 和 ``processed`` 子目录的根目录，
+    即传给 ``torch_geometric.datasets.QM9`` 的 ``root`` 路径。
     """
-    加载或下载QM9数据集
-    """
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("Step 2: Loading QM9 Dataset")
-    print("="*60)
-    
+    print("=" * 60)
+
     print("\nLoading QM9 dataset (will download if not present)...")
-    dataset = QM9(root=str(QM9_DIR))
-    print(f"✓ Dataset loaded successfully")
+    dataset = QM9(root=str(qm9_dir))
+    print("✓ Dataset loaded successfully")
     print(f"  Total molecules: {len(dataset)}")
-    
+
     return dataset
 
 
-def extract_qm9_all_info(dataset):
+def _extract_qm9_all_info(
+        dataset: QM9
+        ) -> pd.DataFrame:
     """
-    解析QM9数据集，获取所有信息
+    解析QM9数据集, 获取所有信息
     """
     print("\n" + "="*60)
     print("Step 3: Extracting All QM9 Information")
     print("="*60)
-    
-    # 创建processed_data目录
-    QM9_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-    
+
     print("\nExtracting all data fields...")
     data_list = []
-    
-    for idx in tqdm(range(len(dataset)), desc="Processing molecules"):
-        data = dataset[idx]
-        
+
+    for idx, data in enumerate(tqdm(dataset, desc="Processing molecules")):
         # QM9有两个SMILES版本
         smiles1 = data.smiles if hasattr(data, 'smiles') else None
         smiles2 = data.name if hasattr(data, 'name') else None
@@ -122,18 +99,15 @@ def extract_qm9_all_info(dataset):
         })
     
     df = pd.DataFrame(data_list)
-    
-    # 保存原始数据到qm9/processed_data目录
-    raw_output = QM9_PROCESSED_DIR / "qm9_all_raw.csv"
-    df.to_csv(raw_output, index=False)
-    print(f"\n✓ Raw data saved to: {raw_output}")
     print(f"  Total samples: {len(df)}")
     print(f"  Columns: {', '.join(df.columns)}")
-    
+
     return df
 
 
-def filter_fluorine(df):
+def _filter_fluorine(
+        df: pd.DataFrame
+        ) -> pd.DataFrame:
     """
     Step 3: 过滤带F元素的行
     """
@@ -165,9 +139,11 @@ def filter_fluorine(df):
     return df
 
 
-def process_smiles_to_standard(df):
+def _process_smiles_to_standard(
+        df: pd.DataFrame
+        ) -> pd.DataFrame:
     """
-    Step 4: 处理smiles，转换为标准SMILES格式
+    Step 4: 处理smiles, 转换为标准SMILES格式
     Step 5: 过滤掉有价态错误的分子
     """
     print("\n" + "="*60)
@@ -185,8 +161,8 @@ def process_smiles_to_standard(df):
     valence_errors = 0
     parse_errors = 0
     
-    for idx, row in tqdm(df.iterrows(), total=len(df), desc="Processing SMILES"):
-        smiles = row['original_smiles']
+    for row in tqdm(df.itertuples(index=False), total=len(df), desc="Processing SMILES"):
+        smiles = row.original_smiles
         
         if pd.isna(smiles):
             parse_errors += 1
@@ -217,14 +193,14 @@ def process_smiles_to_standard(df):
                 
                 # 保存有效数据
                 valid_data.append({
-                    'idx': row['idx'],
+                    'idx': row.idx,
                     'SMILES': canonical_smiles,
-                    'gap': row['gap'],
-                    'num_atoms': row['num_atoms'],
-                    'homo': row['homo'],
-                    'lumo': row['lumo'],
-                    'mu': row['mu'],
-                    'alpha': row['alpha'],
+                    'gap': row.gap,
+                    'num_atoms': row.num_atoms,
+                    'homo': row.homo,
+                    'lumo': row.lumo,
+                    'mu': row.mu,
+                    'alpha': row.alpha,
                 })
                 
             except Exception as e:
@@ -252,15 +228,12 @@ def process_smiles_to_standard(df):
     print(f"  Parse errors: {parse_errors}")
     print(f"  Total filtered: {len(df) - len(df_clean)}")
     
-    # 保存处理后的数据（包含更多列）
-    cleaned_output = QM9_PROCESSED_DIR / "qm9_cleaned_full.csv"
-    df_clean.to_csv(cleaned_output, index=False)
-    print(f"\n✓ Cleaned data (full) saved to: {cleaned_output}")
-    
     return df_clean
 
 
-def filter_stereochemistry(df):
+def _filter_stereochemistry(
+        df: pd.DataFrame
+        ) -> pd.DataFrame:
     """
     Step 6: 过滤掉带立体化学和手性的SMILES
     """
@@ -290,18 +263,53 @@ def filter_stereochemistry(df):
     
     print(f"\n✓ After filtering: {len(df)} samples")
     
-    # 保存过滤后的数据（包含更多列）
-    no_stereo_output = QM9_PROCESSED_DIR / "qm9_no_stereochemistry.csv"
-    df.to_csv(no_stereo_output, index=False)
-    print(f"✓ Data without stereochemistry saved to: {no_stereo_output}")
-    
     return df
 
 
-def save_final_dataset(df):
+def extract_qm9(
+        qm9_dir: Path,
+        ) -> pd.DataFrame:
+    """从 PyG 的 QM9 数据生成精简 CSV。
+
+    期望目录结构为::
+
+        <QM9_ROOT>/
+            raw/
+            processed/
+
+    其中 ``qm9_dir`` 即为 ``<QM9_ROOT>``，函数会自动在其下寻找
+    ``raw`` 与 ``processed`` 目录，并将最终生成的 ``qm9_final.csv``
+    直接保存在 ``<QM9_ROOT>`` 下。
     """
-    Step 7: 只保留SMILES和gap两列
-    """
+
+    qm9_raw_dir = qm9_dir / "raw"
+    qm9_processed_dir = qm9_dir / "processed"
+
+    # 先检查原始 QM9 数据是否就绪
+    _check_qm9(qm9_raw_dir, qm9_processed_dir)
+
+    # 最终输出文件路径（固定在 QM9 根目录下）
+    final_output = qm9_dir / "qm9_final.csv"
+
+    # 如果已经生成过 qm9_final.csv，则直接读取并返回，跳过后续所有步骤
+    if final_output.exists():
+        print("\n" + "=" * 60)
+        print("Step 2: Existing Processed QM9 Dataset Detected")
+        print("=" * 60)
+        print(f"\n✓ Found existing qm9_final.csv, skip regeneration: {final_output}")
+        df_final = pd.read_csv(final_output)
+        print(f"  Loaded samples: {len(df_final)}")
+        return df_final
+
+    # 传给 PyG QM9 的根目录就是 qm9_dir
+    qm9_root_dir = qm9_dir
+
+    dataset = _load_qm9(qm9_root_dir)
+    df = _extract_qm9_all_info(dataset)
+    df = _filter_fluorine(df)
+    df = _process_smiles_to_standard(df)
+    df = _filter_stereochemistry(df)
+
     print("\n" + "="*60)
     print("Step 7: Creating Final Dataset")
     print("="*60)
@@ -316,8 +324,7 @@ def save_final_dataset(df):
     print(f"  Gap mean: {df_final['gap'].mean():.4f} eV")
     print(f"  Gap std: {df_final['gap'].std():.4f} eV")
     
-    # 保存最终数据集
-    final_output = QM9_PROCESSED_DIR / "qm9_final.csv"
+    # 保存最终数据集：固定保存在 QM9 根目录下
     df_final.to_csv(final_output, index=False)
     print(f"\n✓ Final dataset saved to: {final_output}")
     
@@ -326,36 +333,3 @@ def save_final_dataset(df):
     print(df_final.head())
     
     return df_final
-
-
-if __name__ == "__main__":
-    # Step 1: 检查QM9数据是否已下载
-    has_data = check_qm9_downloaded()
-    
-    # Step 2: 加载或下载QM9数据集
-    dataset = load_qm9_dataset()
-    
-    # Step 3: 提取所有信息并保存
-    df_raw = extract_qm9_all_info(dataset)
-    
-    # Step 4: 过滤含F的分子
-    df_no_f = filter_fluorine(df_raw)
-    
-    # Step 5: 处理SMILES并过滤价态错误
-    df_clean = process_smiles_to_standard(df_no_f)
-    
-    # Step 6: 过滤立体化学和手性
-    df_no_stereo = filter_stereochemistry(df_clean)
-    
-    # Step 7: 保存最终数据集（仅SMILES和gap）
-    df_final = save_final_dataset(df_no_stereo)
-    
-    print("\n" + "="*60)
-    print("QM9 Data Processing Complete!")
-    print("="*60)
-    print("\nGenerated files in data/qm9/processed_data/:")
-    print("  1. qm9_all_raw.csv - All raw QM9 data with all properties")
-    print("  2. qm9_cleaned_full.csv - Cleaned data (no F, no valence errors)")
-    print("  3. qm9_no_stereochemistry.csv - Data without stereochemistry")
-    print("  4. qm9_final.csv - Final dataset (SMILES and gap only)")
-    print("\nYou can now use qm9_final.csv for your gap prediction tasks!")

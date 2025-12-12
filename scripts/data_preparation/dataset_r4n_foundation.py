@@ -2,10 +2,10 @@
 R4N+ 阳离子生成脚本 (命令行版本)
 
 这是一个命令行交互脚本，用于生成季铵离子化合物。
-如果需要在其他代码中调用，请使用: from utils import R4NGenerator
+如果需要在其他代码中调用，请使用: from src import R4NGenerator
 """
 
-from utils import R4NGenerator
+from src import R4NGenerator
 
 
 def main():
