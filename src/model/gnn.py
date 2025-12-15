@@ -2,16 +2,14 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch_geometric.data import Data, Dataset
-from torch_geometric.loader import DataLoader
 from torch_geometric.nn import GATConv, global_mean_pool, global_max_pool
-from sklearn.metrics import mean_absolute_error, mean_squared_error, root_mean_squared_error, r2_score
+from sklearn.metrics import mean_absolute_error, root_mean_squared_error, r2_score
 
 
 class GapPredictionGNN(torch.nn.Module):
     """
     用于预测HOMO-LUMO Gap的图神经网络
-    
+     
     轻量级架构（适合小数据集）：2层GAT + 简单MLP
     """
     
