@@ -84,12 +84,12 @@ def mol_to_graph(mol: Chem.Mol, gap: float, precomputed_features: Optional[list]
     
     节点特征: 原子类型(one-hot: C,H,O,N)、3D坐标、杂化类型、形式电荷
     边特征: 键类型
-    全局特征: 分子量、LogP等描述符
+    全局特征: 分子量等描述符
     
     Args:
         mol: RDKit Mol对象（已加氢的3D构象分子）
         gap: HOMO-LUMO Gap目标值
-        precomputed_features: 预计算的全局特征列表 [mol_weight, logp, num_rotatable_bonds, bertz_ct]
+        precomputed_features: 预计算的全局特征列表 [mol_weight, num_rotatable_bonds, bertz_ct]
                              如果提供, 将直接使用而不重新计算
         
     Returns:
@@ -134,7 +134,7 @@ def mol_to_graph(mol: Chem.Mol, gap: float, precomputed_features: Optional[list]
     return data
 
 
-_FEATURE_COLUMNS = ["mol_weight", "logp", "num_rotatable_bonds", "bertz_ct"]
+_FEATURE_COLUMNS = ["mol_weight", "num_rotatable_bonds", "bertz_ct"]
 
 
 def _ensure_valid_columns(df: pd.DataFrame, smiles_col: str, target_col: str) -> None:
@@ -234,9 +234,9 @@ def load_graph_dataset(
 
 
 class R4NGapDataset(Dataset):
-    """基于CSV的图数据集封装，并支持joblib缓存。
+    """基于CSV的图数据集封装, 并支持joblib缓存。
 
-    第一次会从CSV生成图数据并保存为.joblib；之后直接从joblib加载。
+    第一次会从CSV生成图数据并保存为.joblib; 之后直接从joblib加载。
     """
 
     def __init__(

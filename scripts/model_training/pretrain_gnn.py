@@ -14,7 +14,7 @@ import numpy as np
 from pathlib import Path
 import torch
 from torch_geometric.loader import DataLoader
-from src import load_graph_dataset, GapPredictionGNN, train_epoch, evaluate
+from src import R4NGapDataset, load_graph_dataset, GapPredictionGNN, train_epoch, evaluate
 import sys
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -67,7 +67,7 @@ def pretrain_on_qm9(model, device, qm9_path, num_epochs=100, batch_size=32):
     try:
         # 使用build_3d_mol, mol_to_graph处理QM9数据（统一的特征处理）
         print(f"\nLoading QM9 data from: {qm9_path}")
-        dataset = load_graph_dataset(qm9_path)
+        dataset = R4NGapDataset(qm9_path)
         print(f"Total QM9 samples: {len(dataset)}")
         
         if len(dataset) == 0:
@@ -97,7 +97,7 @@ def pretrain_on_qm9(model, device, qm9_path, num_epochs=100, batch_size=32):
         # 优化器和学习率调度器
         optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-5)
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-            optimizer, mode='min', factor=0.7, patience=5, verbose=True
+            optimizer, mode='min', factor=0.7, patience=5
         )
         
         # 预训练
@@ -220,7 +220,7 @@ def main():
     model = GapPredictionGNN(
         num_node_features=num_node_features,
         hidden_channels=80,
-        num_global_features=4,
+        num_global_features=3,
         num_heads=4
     ).to(device)
     

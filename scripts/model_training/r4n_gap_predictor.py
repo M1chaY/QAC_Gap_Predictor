@@ -9,7 +9,7 @@ from utils import metrics_to_df, scat_avp
 from IPython.display import Image, display
 from sklearn.model_selection import KFold
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 MODEL_DIR = PROJECT_ROOT / "models"
 DATA_DIR = PROJECT_ROOT / "data" 
 

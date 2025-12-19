@@ -13,7 +13,7 @@ class GapPredictionGNN(torch.nn.Module):
     轻量级架构（适合小数据集）：2层GAT + 简单MLP
     """
     
-    def __init__(self, num_node_features, hidden_channels=80, num_global_features=4, num_heads=4):
+    def __init__(self, num_node_features, hidden_channels=80, num_global_features=3, num_heads=4):
         super().__init__()
         
         # 确保hidden_channels能被num_heads整除

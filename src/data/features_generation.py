@@ -8,7 +8,7 @@ from rdkit.Chem import (
     rdMolDescriptors,
 )
 
-_FEATURE_COLUMNS = ["mol_weight", "logp", "num_rotatable_bonds", "bertz_ct"]
+_FEATURE_COLUMNS = ["mol_weight", "num_rotatable_bonds", "bertz_ct"]
 
 
 def _ensure_valid_columns(df: pd.DataFrame, smiles_col: str, target_col: str) -> None:
@@ -36,7 +36,6 @@ def _compute_molecular_descriptors(smiles: str) -> Optional[dict]:
     try:
         return {
             "mol_weight": Descriptors.MolWt(mol),
-            "logp": Descriptors.MolLogP(mol),
             "num_rotatable_bonds": rdMolDescriptors.CalcNumRotatableBonds(mol),
             "bertz_ct": GraphDescriptors.BertzCT(mol_no_h),
         }
