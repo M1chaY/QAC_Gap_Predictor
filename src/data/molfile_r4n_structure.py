@@ -3,7 +3,7 @@ from pathlib import Path
 import pandas as pd
 from rdkit import Chem
 
-from src import build_3d_mol
+from src.input.smiles_transformation import build_3d_mol
 
 
 def generate_structure(

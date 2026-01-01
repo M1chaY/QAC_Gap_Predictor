@@ -4,6 +4,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch_geometric.nn import GATConv, global_mean_pool, global_max_pool
 from sklearn.metrics import mean_absolute_error, root_mean_squared_error, r2_score
+import matplotlib.pyplot as plt
+from pathlib import Path
 
 
 class GapPredictionGNN(torch.nn.Module):
@@ -114,3 +116,86 @@ def evaluate(model, loader, device):
     rmse = root_mean_squared_error(targets, predictions)
 
     return r2, mae, rmse, predictions, targets
+
+
+def compute_loss(model, loader, device):
+    """计算数据集的平均损失（用于绘图）"""
+    model.eval()
+    total_loss = 0
+    
+    with torch.no_grad():
+        for data in loader:
+            data = data.to(device)
+            out = model(data)
+            loss = F.l1_loss(out.squeeze(), data.y)
+            total_loss += loss.item() * data.num_graphs
+    
+    return total_loss / len(loader.dataset)
+
+
+def plot_loss_curves(train_losses, test_losses, save_path=None, title="Training and Test Loss Curves", figsize=(10, 6), dpi=600):
+    """
+    绘制训练集和测试集的损失曲线
+    
+    Args:
+        train_losses: 训练集损失列表 (每个 epoch 的平均损失)
+        test_losses: 测试集损失列表 (每个 epoch 的平均损失)
+        save_path: 保存路径 (如果为 None, 则显示图像)
+        title: 图表标题
+        figsize: 图形尺寸
+        dpi: 图形分辨率
+    """
+    # 设置字体
+    plt.rcParams["font.family"] = "Arial"
+    fig, ax = plt.subplots(figsize=figsize, dpi=dpi)
+    
+    epochs = range(1, len(train_losses) + 1)
+    
+    # 绘制损失曲线
+    ax.plot(epochs, train_losses, 'b-', label='Train Loss', linewidth=2, alpha=0.8)
+    ax.plot(epochs, test_losses, 'r-', label='Test Loss', linewidth=2, alpha=0.8)
+    
+    # 标注最小值
+    min_train_idx = np.argmin(train_losses)
+    min_test_idx = np.argmin(test_losses)
+    
+    ax.plot(min_train_idx + 1, train_losses[min_train_idx], 'bo', markersize=8)
+    ax.plot(min_test_idx + 1, test_losses[min_test_idx], 'ro', markersize=8)
+    
+    ax.text(min_train_idx + 1, train_losses[min_train_idx], 
+            f'  Min: {train_losses[min_train_idx]:.4f}',
+            fontsize=14, verticalalignment='bottom')
+    ax.text(min_test_idx + 1, test_losses[min_test_idx], 
+            f'  Min: {test_losses[min_test_idx]:.4f}',
+            fontsize=14, verticalalignment='top')
+    
+    # 设置标签和标题
+    ax.set_xlabel('Epoch', fontsize=20)
+    ax.set_ylabel('Loss (MAE)', fontsize=20)
+    ax.set_title(title, fontsize=24, pad=10)
+    
+    # 设置图例和网格
+    ax.legend(frameon=False, fontsize=20, loc='upper right')
+    ax.grid(True, alpha=0.3)
+    
+    # 设置刻度样式
+    ax.tick_params(axis='both', which='both', length=5, width=2, colors='black', labelsize=16)
+    
+    # 设置边框样式
+    for spine in ax.spines.values():
+        spine.set_visible(True)
+        spine.set_linewidth(2)
+        spine.set_color('black')
+    
+    # 保存图形
+    plt.tight_layout()
+    
+    if save_path:
+        save_path = Path(save_path)
+        save_path.parent.mkdir(parents=True, exist_ok=True)
+        fig.savefig(save_path, dpi=dpi, transparent=False)
+        print(f"\n✓ 损失曲线已保存至: {save_path}")
+    else:
+        plt.show()
+    
+    plt.close(fig)
