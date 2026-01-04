@@ -1,48 +1,60 @@
-# Role
-You are a technical documentation expert and a strict Markdown syntax validator. Your output must always be raw Markdown code that passes the `markdownlint` CLI checks without warnings.
+# Copilot Instructions
 
-# Markdown Style Guidelines (Strict Enforcement)
-When generating or refactoring Markdown content, you must adhere to the following rules:
+## Code Organization and Structure
 
-1.  **Surrounding Blank Lines (MD022, MD032):**
-    -   **MD032:** Lists (ordered or unordered) MUST be surrounded by blank lines. Never start a list immediately after a paragraph or header without an empty line in between.
-    -   **MD022:** Headers MUST be surrounded by blank lines (one blank line before and one after).
+### Source Code (`src/` directory)
+- **Single Responsibility Principle**: Each Python file must focus on one specific functionality
+- **Line Limit**: Maximum 150 lines per file (excluding blank lines)
+- **Modularity**: Break down complex features into multiple focused modules
 
-2.  **Whitespace & Newlines (MD009, MD012, MD047):**
-    -   **MD009:** No trailing spaces at the end of lines.
-    -   **MD012:** No multiple consecutive blank lines (maximum one empty line).
-    -   **MD047:** Files MUST end with a single newline character.
+### Scripts (`scripts/` directory)
+- **Purpose**: Each script should accomplish one specific task or workflow
+- **Composition**: Scripts may import and combine multiple functions from `src/` modules
+- **Line Limit**: No strict line limit, but maintain readability and clarity
 
-3.  **Headers & Structure (MD025, MD060):**
-    -   **MD025:** Use only one Level 1 header (`#`) per file, and it must be the first line.
-    -   **MD060/Structure:** Header levels must increment by one level at a time (e.g., do not jump from H2 to H4).
+## Code Quality Standards
 
-4.  **Code Blocks (MD040):**
-    -   Fenced code blocks must always have a language identifier (e.g., ```python, ```bash).
+### Output and Logging
+- **Print Statements**: Only use alphanumeric characters (A-Z, a-z, 0-9) and standard punctuation marks
+- **Prohibited**: No special Unicode symbols, emoji, or ASCII art in `print()` statements
+- **Example**: 
+  - ✅ `print("Processing completed successfully.")`
+  - ❌ `print("Processing completed ✓")`
+  - ❌ `print("===> Starting process")`
 
-5.  **Line Length (MD013 - Modified):**
-    -   For code blocks or URLs, do not force line breaks. For regular text, keep lines reasonable but prefer soft-wrapping over hard breaks unless specifying a table.
+### Documentation
 
-# Example of CORRECT Formatting
+#### Code Comments
+- **Requirement**: Every module, class, function, and complex statement block must have comments
+- **Style**: Comments should be concise yet complete
+- **Language**: Use clear, descriptive language
+- **Format**: Follow PEP 257 docstring conventions for Python
 
-# Document Title (MD025)
+#### README Files
+- **Placement**: Every directory must contain a `README.md` file
+- **Content**: Provide clear, concise documentation about the directory's purpose and contents
+- **Standards**: Follow [Markdownlint](https://github.com/DavidAnson/markdownlint) rules
+- **Include**:
+  - Directory purpose and overview
+  - File descriptions
+  - Usage examples (where applicable)
+  - Dependencies (if any)
 
-Introduction paragraph text.
+## General Guidelines
 
-## Section Header (MD022: blank line above/below)
+- Prioritize code readability and maintainability
+- Follow PEP 8 style guidelines for Python code
+- Use meaningful variable and function names
+- Keep functions small and focused
+- Write self-documenting code supplemented with comments
 
-Here is a list of items:
+## Example Structure
 
-- Item 1
-- Item 2
-- Item 3
-(MD032: Blank line required here)
-
-Next paragraph text.
-
-# Action
-Verify your output against these rules before responding. If you generate a list, double-check the blank lines surrounding it.
-
-# Chinese Layout Rules
-- **Spacing:** Insert a whitespace between Chinese characters and English words/numbers (e.g., "使用 GitHub Copilot 编写").
-- **Punctuation:** Use full-width punctuation (，。：) for Chinese sentences and half-width punctuation for English/Code contexts.
+project/
+├── src/
+│ ├── README.md
+│ ├── data_processor.py # Max 150 lines
+│ └── validator.py # Max 150 lines
+└── scripts/
+├── README.md
+└── run_pipeline.py # Combines src modules, no line limit
