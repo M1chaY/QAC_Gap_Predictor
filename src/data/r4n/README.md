@@ -4,16 +4,19 @@
 
 ## 文件说明
 
-| 文件 | 功能 | 行数限制 |
-| ---- | ---- | -------- |
-| `smiles_builder.py` | 季铵离子SMILES构建 | <150 |
-| `alkyl_groups.py` | 烷基基团生成 | <150 |
-| `generator.py` | 化合物生成器类 | <150 |
-| `molecule_validator.py` | 分子结构验证 | <150 |
-| `pubchem_query.py` | PubChem查询功能 | <150 |
-| `pubchem_saver.py` | PubChem验证和保存 | <150 |
-| `statistics.py` | 统计信息和CSV保存 | <150 |
-| `cleaner.py` | 数据集清洗 | <150 |
+| 文件 | 功能 |
+| ---- | ---- |
+| `smiles_builder.py` | 季铵离子SMILES构建 |
+| `alkyl_groups.py` | 烷基基团生成 |
+| `generator.py` | 化合物生成器类 |
+| `molecule_validator.py` | 分子结构验证 |
+| `pubchem_query.py` | PubChem查询功能 |
+| `step1_cid.py` | Step 1: CID验证 |
+| `step2_properties.py` | Step 2: 属性查询 |
+| `step3_halide_cas.py` | Step 3: 卤化盐CAS查询 |
+| `pubchem_pipeline.py` | 完整验证流水线 |
+| `statistics.py` | 统计信息和CSV保存 |
+| `cleaner.py` | 数据集清洗 |
 
 ## 使用示例
 
@@ -27,14 +30,26 @@ compounds, distribution = generator.generate_compounds()
 print_statistics(compounds, distribution)
 ```
 
-### 保存结果
+### 保存并验证
 
 ```python
-from src.data.r4n import save_compounds_to_csv, save_with_validation
+from src.data.r4n import save_compounds_to_csv
+from src import run_full_validation_pipeline
 
-# 简单保存
-save_compounds_to_csv(compounds, "output.csv", max_carbons=20)
+# 保存基础数据
+save_compounds_to_csv(compounds, "data/r4n/output.csv", max_carbons=20)
 
-# 带PubChem验证
-save_with_validation(compounds, "output.csv", max_carbons=20, validate_pubchem=True)
+# 运行完整验证流水线
+run_full_validation_pipeline("data/r4n/output.csv", verbose=True)
+```
+
+### 分步验证
+
+```python
+from src import step1_validate_cid, step2_add_properties, step3_query_halide_cas
+
+# 每步独立运行，支持断点续传
+step1_validate_cid("input.csv", "output_with_cid.csv")
+step2_add_properties("output_with_cid.csv", "output_with_props.csv")
+step3_query_halide_cas("output_with_props.csv", "output_with_cas.csv")
 ```

@@ -8,10 +8,10 @@ QM9 数据集工作流脚本 (命令行版本)
 3. 完整工作流（提取 + 预处理）
 
 如果需要在其他代码中调用，请使用:
-    from src import extract_qm9, preprocess_dataset
+    from src import extract_qm9, preprocess_qm9_dataset
 """
 
-from src import extract_qm9, preprocess_dataset
+from src import extract_qm9, preprocess_qm9_dataset
 from src.path import DATA_DIR, QM9_DIR
 
 
@@ -23,12 +23,12 @@ def extract_qm9_data():
     
     try:
         df = extract_qm9(QM9_DIR)
-        print(f"\n✓ QM9 extraction complete!")
+        print(f"\n[OK] QM9 extraction complete!")
         print(f"  Output: {QM9_DIR / 'qm9_final.csv'}")
         print(f"  Total samples: {len(df)}")
         return QM9_DIR / 'qm9_final.csv'
     except Exception as e:
-        print(f"\n✗ Error during extraction: {e}")
+        print(f"\n[ERROR] Error during extraction: {e}")
         return None
 
 
@@ -41,24 +41,24 @@ def preprocess_qm9_data():
     # 检查输入文件
     input_file = QM9_DIR / "qm9_final.csv"
     if not input_file.exists():
-        print(f"\n✗ Error: Input file not found: {input_file}")
+        print(f"\n[ERROR] Input file not found: {input_file}")
         print("  Please run 'Extract QM9 data' first or ensure qm9_final.csv exists.")
         return None
     
     try:
-        df = preprocess_dataset(
+        df = preprocess_qm9_dataset(
             input_csv=input_file,
             output_csv=DATA_DIR / "qm9.csv",
             smiles_col="SMILES",
             target_col="gap",
             skip_existing=False  # 总是重新计算
         )
-        print(f"\n✓ Preprocessing complete!")
+        print(f"\n[OK] Preprocessing complete!")
         print(f"  Output: {DATA_DIR / 'qm9.csv'}")
         print(f"  Total samples: {len(df)}")
         return DATA_DIR / "qm9.csv"
     except Exception as e:
-        print(f"\n✗ Error during preprocessing: {e}")
+        print(f"\n[ERROR] Error during preprocessing: {e}")
         return None
 
 
@@ -85,16 +85,16 @@ def main():
         elif choice == '2':
             preprocess_qm9_data()
         elif choice == '3':
-            print("\n>>> Starting full workflow...")
+            print("\nStarting full workflow...")
             print("\n[Step 1/2] Extracting QM9 data...")
             result = extract_qm9_data()
             
             if result:
                 print("\n[Step 2/2] Preprocessing dataset...")
                 preprocess_qm9_data()
-                print("\n✓ Full workflow completed!")
+                print("\n[OK] Full workflow completed!")
             else:
-                print("\n✗ Workflow stopped due to extraction error.")
+                print("\n[ERROR] Workflow stopped due to extraction error.")
         else:
             print("Invalid choice. Please select 0-3.")
         

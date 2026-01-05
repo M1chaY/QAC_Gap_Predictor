@@ -9,18 +9,19 @@ from typing import Optional
 
 import pandas as pd
 
+from src.io.integrity import save_checksum
+
 
 def clean_r4n_dataset(csv_path: str) -> Optional[str]:
     """
     清洗R4N数据集并保存到新的CSV。
 
     操作包括：
-    - 删除CID为空的行
-    - 删除原始Index列
+    - 删除CID为0或NaN的行（无效化合物）
     - 重置索引
 
     Args:
-        csv_path: 输入CSV文件路径
+        csv_path: 输入CSV文件路径（需包含cid列）
         
     Returns:
         str: 输出文件路径
@@ -37,21 +38,28 @@ def clean_r4n_dataset(csv_path: str) -> Optional[str]:
     print("\nLoading R4N dataset for cleaning...")
     df = pd.read_csv(path)
 
-    print("Cleaning entries with missing cid...")
+    print("Cleaning entries with missing or zero cid...")
     before = len(df)
-    df = df.dropna(subset=["cid"])
+    # Remove rows with NaN or zero CID (invalid compounds)
+    df = df[df["cid"].notna() & (df["cid"] != 0)]
     after = len(df)
     print(f"Retained {after} entries with valid cid out of {before} total.")
 
-    if "Index" in df.columns:
-        print("Removing original Index column...")
-        df = df.drop(columns=["Index"])
-
     df.reset_index(drop=True, inplace=True)
 
-    cleaned_csv_path = path.with_name(path.stem + "_with_cid.csv")
+    cleaned_csv_path = path.with_name(path.stem + "_cleaned.csv")
     print(f"\nSaving cleaned data to {cleaned_csv_path}...")
     df.to_csv(cleaned_csv_path, index=False)
+
+    # Save MD5 checksum
+    metadata = {
+        "step": "cleaned",
+        "source_file": path.name,
+        "original_count": before,
+        "cleaned_count": after,
+        "removed_count": before - after
+    }
+    save_checksum(str(cleaned_csv_path), metadata)
     print("Cleaning complete.")
 
     return str(cleaned_csv_path)

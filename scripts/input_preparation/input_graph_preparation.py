@@ -21,13 +21,13 @@ from pathlib import Path
 # 添加项目根目录到路径
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from src.input.preprocessing import (
+from src import (
     load_input_file,
     validate_required_columns,
-    clean_data,
+    clean_target_data,
     compute_global_features,
     convert_smiles_to_graphs,
-    save_dataset
+    save_graph_dataset
 )
 
 
@@ -87,8 +87,8 @@ def main():
         # 6. 验证必需列
         validate_required_columns(df, smiles_col, target_col)
         
-        # 7. 清理数据
-        df = clean_data(df, target_col)
+        # 7. 清理目标值数据
+        df = clean_target_data(df, target_col)
         
         # 8. 计算全局特征（如果需要）
         df = compute_global_features(df, smiles_col)
@@ -103,7 +103,7 @@ def main():
             sys.exit(1)
         
         # 10. 保存数据集
-        save_dataset(
+        save_graph_dataset(
             graph_list, df_valid, output_path,
             smiles_col, target_col
         )

@@ -1,0 +1,12 @@
+{
+  "file_name": "dataset_r4n_c20_with_cid_with_props.csv",
+  "md5": "80cde07fa6f21f89f7bd78234623901e",
+  "size_bytes": 41640,
+  "created_at": "2026-01-05T12:48:12.790405",
+  "metadata": {
+    "step": "properties_added",
+    "total_compounds": 377,
+    "valid_cid_count": 377,
+    "has_properties": true
+  }
+}

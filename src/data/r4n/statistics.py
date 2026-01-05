@@ -54,7 +54,7 @@ def save_compounds_to_csv(
     max_carbons: int
 ) -> str:
     """
-    保存化合物到CSV文件。
+    保存化合物到CSV文件并生成校验和。
     
     Args:
         compounds: 化合物列表，每个元素为(carbon_count, smiles)
@@ -64,6 +64,8 @@ def save_compounds_to_csv(
     Returns:
         str: 保存的文件路径
     """
+    from src.io.integrity import save_checksum
+    
     if filename is None:
         filename = f"data/r4n_smiles_c{max_carbons}.csv"
 
@@ -80,6 +82,14 @@ def save_compounds_to_csv(
     
     df = pd.DataFrame(data)
     df.to_csv(filename, index=False)
+    
+    # 保存校验和
+    metadata = {
+        "type": "r4n_compounds",
+        "max_carbons": max_carbons,
+        "total_compounds": total
+    }
+    save_checksum(filename, metadata)
     
     print(f"\nResult saved to {filename}")
     

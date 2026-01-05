@@ -9,7 +9,7 @@
 | `gap_gnn.py` | HOMO-LUMO Gap 预测 GNN 模型定义 | <150 |
 | `training.py` | 训练和评估工具函数 | <150 |
 | `evaluation.py` | 回归模型评估指标计算 | <150 |
-| `visualization.py` | 训练损失曲线可视化 | <150 |
+| `loss_curves.py` | 训练损失曲线可视化 | <150 |
 | `scatter_plot.py` | 实际值vs预测值散点图 | <150 |
 
 ## 模型架构
@@ -62,6 +62,14 @@ df = metrics_to_dataframe(y_train, y_train_pred, y_test, y_test_pred, "GNN")
 ```python
 from src.model import plot_loss_curves, plot_actual_vs_predicted
 
+# 绘制损失曲线
 plot_loss_curves(train_losses, test_losses, "loss.png")
-plot_actual_vs_predicted(y_train, y_train_pred, y_test, y_test_pred, "scatter.png")
+
+# 绘制预测散点图（支持训练集和测试集对比）
+plot_actual_vs_predicted(
+    y_train, y_train_pred, y_test, y_test_pred,
+    save_path="scatter.png",
+    axis_min=0, axis_max=10,
+    model_name="GNN"
+)
 ```

@@ -32,24 +32,31 @@ from src.data.r4n.pubchem_query import (
     get_cas_number,
 )
 from src.data.r4n.cleaner import clean_r4n_dataset
+from src.data.r4n.statistics import print_statistics, save_compounds_to_csv
+from src.data.r4n.step1_cid import step1_validate_cid
+from src.data.r4n.step2_properties import step2_add_properties
+from src.data.r4n.step3_halide_cas import step3_query_halide_cas
+from src.data.r4n.pubchem_pipeline import run_full_validation_pipeline
+from src.data.r4n.preprocessor import preprocess_r4n_dataset
 
-# ==================== 分子处理 ====================
+# ==================== 分子处理 ==
 from src.molecule.builder import build_3d_mol
-from src.molecule.graph_converter import (
-    extract_atom_features,
-    extract_bond_features,
-    mol_to_graph,
-)
+from src.molecule.graph_converter import mol_to_graph
 from src.molecule.features import (
     compute_global_descriptors,
     FEATURE_COLUMNS,
 )
-from src.molecule.structure_generator import generate_structure
+from src.molecule.structure_generator import generate_mol_files
 
 # ==================== 文件IO ====================
 from src.io.file_loader import load_input_file
 from src.io.validator import validate_required_columns, clean_target_data
 from src.io.saver import save_graph_dataset
+from src.io.integrity import (
+    check_data_integrity,
+    save_checksum,
+    verify_checksum,
+)
 
 # ==================== 数据集封装 ====================
 from src.dataset.csv_loader import load_graph_dataset, R4NGapDataset
@@ -60,7 +67,7 @@ from src.dataset.feature_pipeline import compute_global_features
 # ==================== 模型 ====================
 from src.model.gap_gnn import GapPredictionGNN
 from src.model.training import train_epoch, evaluate, compute_loss
-from src.model.visualization import plot_loss_curves, plot_prediction_scatter
+from src.model.loss_curves import plot_loss_curves
 from src.model.evaluation import calculate_metrics, metrics_to_dataframe
 from src.model.scatter_plot import plot_actual_vs_predicted
 
@@ -86,19 +93,27 @@ __all__ = [
     "add_halide_to_smiles",
     "get_cas_number",
     "clean_r4n_dataset",
+    "print_statistics",
+    "save_compounds_to_csv",
+    "step1_validate_cid",
+    "step2_add_properties",
+    "step3_query_halide_cas",
+    "run_full_validation_pipeline",
+    "preprocess_r4n_dataset",
     # 分子处理
     "build_3d_mol",
-    "extract_atom_features",
-    "extract_bond_features",
     "mol_to_graph",
     "compute_global_descriptors",
     "FEATURE_COLUMNS",
-    "generate_structure",
+    "generate_mol_files",
     # 文件IO
     "load_input_file",
     "validate_required_columns",
     "clean_target_data",
     "save_graph_dataset",
+    "check_data_integrity",
+    "save_checksum",
+    "verify_checksum",
     # 数据集封装
     "load_graph_dataset",
     "R4NGapDataset",
@@ -112,7 +127,6 @@ __all__ = [
     "evaluate",
     "compute_loss",
     "plot_loss_curves",
-    "plot_prediction_scatter",
     # 模型评估
     "calculate_metrics",
     "metrics_to_dataframe",

@@ -30,6 +30,8 @@ def extract_qm9(qm9_dir: Path) -> pd.DataFrame:
     Returns:
         pd.DataFrame: 包含SMILES和gap的最终数据集
     """
+    from src.io.integrity import check_data_integrity, save_checksum
+    
     qm9_raw_dir = qm9_dir / "raw"
     qm9_processed_dir = qm9_dir / "processed"
 
@@ -39,12 +41,17 @@ def extract_qm9(qm9_dir: Path) -> pd.DataFrame:
 
     if final_output.exists():
         print("\n" + "=" * 60)
-        print("Step 2: Existing Processed QM9 Dataset Detected")
+        print("Step 2: Checking Existing QM9 Dataset")
         print("=" * 60)
-        print(f"\nFound existing qm9_final.csv: {final_output}")
-        df_final = pd.read_csv(final_output)
-        print(f"  Loaded samples: {len(df_final)}")
-        return df_final
+        
+        # 验证数据完整性
+        if check_data_integrity(str(final_output), verbose=True):
+            print(f"\nLoading validated qm9_final.csv: {final_output}")
+            df_final = pd.read_csv(final_output)
+            print(f"  Loaded samples: {len(df_final)}")
+            return df_final
+        else:
+            print("Existing data failed integrity check. Regenerating...")
 
     dataset = load_qm9_dataset(qm9_dir)
     df = extract_qm9_all_info(dataset)
@@ -64,6 +71,17 @@ def extract_qm9(qm9_dir: Path) -> pd.DataFrame:
     print(f"  Gap mean: {df_final['gap'].mean():.4f} eV")
     
     df_final.to_csv(final_output, index=False)
+    
+    # 保存校验和
+    metadata = {
+        "type": "qm9_extracted",
+        "total_samples": len(df_final),
+        "gap_min": float(df_final['gap'].min()),
+        "gap_max": float(df_final['gap'].max()),
+        "gap_mean": float(df_final['gap'].mean())
+    }
+    save_checksum(str(final_output), metadata)
+    
     print(f"\nFinal dataset saved to: {final_output}")
     
     return df_final

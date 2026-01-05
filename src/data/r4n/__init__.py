@@ -16,11 +16,11 @@ from src.data.r4n.pubchem_query import (
 from src.data.r4n.generator import R4NGenerator
 from src.data.r4n.cleaner import clean_r4n_dataset
 from src.data.r4n.statistics import get_statistics, print_statistics, save_compounds_to_csv
-from src.data.r4n.pubchem_saver import (
-    validate_with_pubchem,
-    query_halide_cas,
-    save_with_validation,
-)
+from src.data.r4n.step1_cid import step1_validate_cid
+from src.data.r4n.step2_properties import step2_add_properties
+from src.data.r4n.step3_halide_cas import step3_query_halide_cas
+from src.data.r4n.pubchem_pipeline import run_full_validation_pipeline
+from src.data.r4n.preprocessor import preprocess_r4n_dataset
 
 __all__ = [
     "build_r4n_smiles",
@@ -36,7 +36,12 @@ __all__ = [
     "get_statistics",
     "print_statistics",
     "save_compounds_to_csv",
-    "validate_with_pubchem",
-    "query_halide_cas",
-    "save_with_validation",
+    # 分步验证
+    "step1_validate_cid",
+    "step2_add_properties",
+    "step3_query_halide_cas",
+    "run_full_validation_pipeline",
+    # 预处理
+    "preprocess_r4n_dataset",
 ]
+

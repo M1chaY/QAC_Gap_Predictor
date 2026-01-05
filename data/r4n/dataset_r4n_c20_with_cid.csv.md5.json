@@ -1,0 +1,11 @@
+{
+  "file_name": "dataset_r4n_c20_with_cid.csv",
+  "md5": "df6d80a5080a565b4a1a0f55cd44f6a0",
+  "size_bytes": 274011,
+  "created_at": "2026-01-04T20:21:39.635097",
+  "metadata": {
+    "step": "cid_validation",
+    "total_compounds": 6063,
+    "valid_cid_count": 6055
+  }
+}

@@ -63,9 +63,15 @@ def preprocess_qm9_dataset(
     Returns:
         pd.DataFrame: 处理后的DataFrame
     """
+    from src.io.integrity import check_data_integrity, save_checksum
+    
     if skip_existing and output_csv.exists():
-        print(f"Output file exists: {output_csv}")
-        return pd.read_csv(output_csv)
+        # 验证数据完整性
+        if check_data_integrity(str(output_csv), verbose=True):
+            print("Loading existing valid data...")
+            return pd.read_csv(output_csv)
+        else:
+            print("Existing data failed integrity check. Reprocessing...")
 
     print(f"Reading input file: {input_csv}")
     df = pd.read_csv(input_csv)
@@ -102,6 +108,16 @@ def preprocess_qm9_dataset(
 
     output_csv.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(output_csv, index=False)
+    
+    # 保存校验和
+    metadata = {
+        "type": "qm9_preprocessed",
+        "total_samples": len(df),
+        "smiles_col": smiles_col,
+        "target_col": target_col
+    }
+    save_checksum(str(output_csv), metadata)
+    
     print(f"Results saved to: {output_csv}")
 
     return df
