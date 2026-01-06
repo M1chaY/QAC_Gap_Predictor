@@ -57,12 +57,21 @@ from src.io.integrity import (
     save_checksum,
     verify_checksum,
 )
+from src.io.report_saver import save_optuna_results
+from src.io.training_logger import (
+    setup_training_logger,
+    log_trial_start,
+    log_epoch,
+    log_trial_end,
+    log_search_summary,
+)
 
 # ==================== 数据集封装 ====================
 from src.dataset.csv_loader import load_graph_dataset, R4NGapDataset
 from src.dataset.joblib_loader import load_prepared_dataset, PreparedGraphDataset
 from src.dataset.pipeline import convert_smiles_to_graphs
 from src.dataset.feature_pipeline import compute_global_features
+from src.dataset.splitter import set_seed, split_dataset
 
 # ==================== 模型 ====================
 from src.model.gap_gnn import GapPredictionGNN
@@ -114,6 +123,12 @@ __all__ = [
     "check_data_integrity",
     "save_checksum",
     "verify_checksum",
+    "save_optuna_results",
+    "setup_training_logger",
+    "log_trial_start",
+    "log_epoch",
+    "log_trial_end",
+    "log_search_summary",
     # 数据集封装
     "load_graph_dataset",
     "R4NGapDataset",
@@ -121,6 +136,8 @@ __all__ = [
     "PreparedGraphDataset",
     "convert_smiles_to_graphs",
     "compute_global_features",
+    "set_seed",
+    "split_dataset",
     # GNN 模型
     "GapPredictionGNN",
     "train_epoch",

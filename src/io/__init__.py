@@ -14,6 +14,14 @@ from src.io.integrity import (
     check_data_integrity,
     get_checksum_metadata,
 )
+from src.io.report_saver import save_optuna_results
+from src.io.training_logger import (
+    setup_training_logger,
+    log_trial_start,
+    log_epoch,
+    log_trial_end,
+    log_search_summary,
+)
 
 __all__ = [
     "load_input_file",
@@ -25,4 +33,10 @@ __all__ = [
     "verify_checksum",
     "check_data_integrity",
     "get_checksum_metadata",
+    "save_optuna_results",
+    "setup_training_logger",
+    "log_trial_start",
+    "log_epoch",
+    "log_trial_end",
+    "log_search_summary",
 ]

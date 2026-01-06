@@ -8,6 +8,7 @@ from src.dataset.csv_loader import load_graph_dataset, R4NGapDataset
 from src.dataset.joblib_loader import load_prepared_dataset, PreparedGraphDataset
 from src.dataset.pipeline import convert_smiles_to_graphs
 from src.dataset.feature_pipeline import compute_global_features
+from src.dataset.splitter import set_seed, split_dataset
 
 __all__ = [
     "load_graph_dataset",
@@ -16,4 +17,6 @@ __all__ = [
     "PreparedGraphDataset",
     "convert_smiles_to_graphs",
     "compute_global_features",
+    "set_seed",
+    "split_dataset",
 ]

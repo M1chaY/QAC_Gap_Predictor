@@ -28,7 +28,7 @@ DATA_DIR = PROJECT_ROOT / "data"
 MODEL_DIR = PROJECT_ROOT / "models"
 
 
-def pretrain_on_qm9(dataset_path, num_epochs=1000, batch_size=64, n_folds=5):
+def pretrain_on_qm9(dataset_path, num_epochs=1000, batch_size=32, n_folds=3):
     """
     在 QM9 数据集上预训练模型（使用 5-Fold 交叉验证）
 
@@ -76,18 +76,6 @@ def pretrain_on_qm9(dataset_path, num_epochs=1000, batch_size=64, n_folds=5):
         # 初始化设备
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         print(f"\n使用设备: {device}")
-
-        # 开始 K-Fold 交叉验证训练
-        print("\n" + "=" * 60)
-        print("开始 5-Fold 交叉验证预训练")
-        print("=" * 60)
-        print(f"最大轮数: {num_epochs}")
-        print(f"批次大小: {batch_size}")
-        print(f"优化器: AdamW (lr=0.0008, weight_decay=5e-5)")
-        print(f"学习率调度: ReduceLROnPlateau (factor=0.5, patience=8)")
-        print(f"Early stopping: patience=15, monitor=cv_mae")
-        print(f"模型配置: hidden=64, heads=3, dropout=0.3")
-        print("=" * 60)
 
         # K-Fold 设置
         kfold = KFold(n_splits=n_folds, shuffle=True, random_state=42)
