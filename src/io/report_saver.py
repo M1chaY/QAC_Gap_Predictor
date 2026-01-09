@@ -72,7 +72,21 @@ def _generate_markdown_report(results: dict) -> str:
     if isinstance(model_params, int):
         model_params = f"{model_params:,}"
     
-    return f"""# Optuna GNN Hyperparameter Search Report
+    # 获取测试集性能（可能为None，用于中间结果）
+    test_r2 = results['best_performance'].get('test_r2')
+    test_mae = results['best_performance'].get('test_mae')
+    test_rmse = results['best_performance'].get('test_rmse')
+    
+    # 格式化测试集指标（None时显示Pending）
+    test_r2_str = f"{test_r2:.4f}" if test_r2 is not None else "Pending"
+    test_mae_str = f"{test_mae:.4f}" if test_mae is not None else "Pending"
+    test_rmse_str = f"{test_rmse:.4f}" if test_rmse is not None else "Pending"
+    
+    # 判断是否为中间结果
+    is_intermediate = test_r2 is None
+    status_note = " (Intermediate - Test evaluation pending)" if is_intermediate else ""
+
+    return f"""# Optuna GNN Hyperparameter Search Report{status_note}
 
 ## Search Information
 
@@ -132,9 +146,9 @@ def _generate_markdown_report(results: dict) -> str:
 
 | Metric | Value |
 |--------|-------|
-| R2 | {results['best_performance']['test_r2']:.4f} |
-| MAE | {results['best_performance']['test_mae']:.4f} |
-| RMSE | {results['best_performance']['test_rmse']:.4f} |
+| R2 | {test_r2_str} |
+| MAE | {test_mae_str} |
+| RMSE | {test_rmse_str} |
 
 ## Study Statistics
 

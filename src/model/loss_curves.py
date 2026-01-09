@@ -16,7 +16,7 @@ def plot_loss_curves(
     test_losses: List[float], 
     save_path: Optional[str] = None, 
     title: str = "Training and Test Loss Curves", 
-    figsize: tuple = (10, 6), 
+    figsize: tuple = (8.5, 8), 
     dpi: int = 600
 ) -> None:
     """
@@ -35,27 +35,25 @@ def plot_loss_curves(
     
     epochs = range(1, len(train_losses) + 1)
     
-    # 绘制损失曲线
-    ax.plot(epochs, train_losses, 'b-', label='Train Loss', linewidth=2, alpha=0.8)
-    ax.plot(epochs, test_losses, 'r-', label='Test Loss', linewidth=2, alpha=0.8)
-    
-    # 标注最小值
+    # 计算最小值信息
     min_train_idx = np.argmin(train_losses)
     min_test_idx = np.argmin(test_losses)
+    min_train_val = train_losses[min_train_idx]
+    min_test_val = test_losses[min_test_idx]
     
-    ax.plot(min_train_idx + 1, train_losses[min_train_idx], 'bo', markersize=8)
-    ax.plot(min_test_idx + 1, test_losses[min_test_idx], 'ro', markersize=8)
+    # 绘制损失曲线（图例中包含最小值信息）
+    ax.plot(
+        epochs, train_losses, 'b-', linewidth=1, alpha=0.8,
+        label=f'Train (Min: {min_train_val:.4f} @ Epoch {min_train_idx + 1})'
+    )
+    ax.plot(
+        epochs, test_losses, 'r-', linewidth=1, alpha=0.8,
+        label=f'Val (Min: {min_test_val:.4f} @ Epoch {min_test_idx + 1})'
+    )
     
-    ax.text(
-        min_train_idx + 1, train_losses[min_train_idx], 
-        f'  Min: {train_losses[min_train_idx]:.4f}',
-        fontsize=14, verticalalignment='bottom'
-    )
-    ax.text(
-        min_test_idx + 1, test_losses[min_test_idx], 
-        f'  Min: {test_losses[min_test_idx]:.4f}',
-        fontsize=14, verticalalignment='top'
-    )
+    # 标注最小值点
+    ax.plot(min_train_idx + 1, min_train_val, 'bo', markersize=8)
+    ax.plot(min_test_idx + 1, min_test_val, 'ro', markersize=8)
     
     # 设置标签和标题
     ax.set_xlabel('Epoch', fontsize=20)
@@ -63,20 +61,20 @@ def plot_loss_curves(
     ax.set_title(title, fontsize=24, pad=10)
     
     # 设置图例和网格
-    ax.legend(frameon=False, fontsize=20, loc='upper right')
-    ax.grid(True, alpha=0.3)
+    ax.legend(frameon=False, fontsize=14, loc='upper right')
+    ax.grid(False)
     
     # 设置刻度样式
     ax.tick_params(
         axis='both', which='both', 
-        length=5, width=2, 
-        colors='black', labelsize=16
+        length=3, width=1, 
+        colors='black', labelsize=18
     )
     
     # 设置边框样式
     for spine in ax.spines.values():
         spine.set_visible(True)
-        spine.set_linewidth(2)
+        spine.set_linewidth(1)
         spine.set_color('black')
     
     plt.tight_layout()

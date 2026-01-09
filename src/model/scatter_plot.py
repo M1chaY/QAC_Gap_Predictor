@@ -21,7 +21,7 @@ def plot_actual_vs_predicted(
     axis_max: float = 220,
     model_name: Optional[str] = None,
     title: Optional[str] = None,
-    figsize: Tuple[int, int] = (6, 6),
+    figsize: Tuple[int, int] = (8.5, 8),
     dpi: int = 600
 ) -> None:
     """
@@ -47,19 +47,29 @@ def plot_actual_vs_predicted(
     fig, ax = plt.subplots(figsize=figsize, dpi=dpi)
 
     # 绘制散点图
-    ax.scatter(y_train, y_train_pred, color='blue', label='Train', s=50, alpha=0.3)
-    ax.scatter(y_test, y_test_pred, color='red', label='Test', s=50, alpha=0.3)
+    ax.scatter(y_train, y_train_pred, color='blue', label='Train', s=30, alpha=0.3)
+    ax.scatter(y_test, y_test_pred, color='red', label='Test', s=30, alpha=0.3)
     ax.plot(
         [axis_min, axis_max], [axis_min, axis_max], 
-        'k--', lw=2, label='Perfect Prediction'
+        'k--', lw=1, label='Perfect Prediction'
     )
 
     # 设置坐标轴范围和刻度
     ax.set_xlim(axis_min, axis_max)
     ax.set_ylim(axis_min, axis_max)
-    major_ticks = np.arange(axis_min, axis_max, 0.5)
+    
+    # 固定6个主刻度，每两个主刻度之间1个副刻度
+    data_range = axis_max - axis_min
+    major_interval = data_range / 5  # 6个刻度需要5个间隔
+    minor_interval = major_interval / 2
+    
+    major_ticks = np.linspace(axis_min, axis_max, 6)
+    minor_ticks = np.arange(axis_min + minor_interval, axis_max, major_interval)
+    
     ax.set_xticks(major_ticks)
     ax.set_yticks(major_ticks)
+    ax.set_xticks(minor_ticks, minor=True)
+    ax.set_yticks(minor_ticks, minor=True)
 
     # 设置标签和标题
     ax.set_xlabel('Actual Values', fontsize=20)
@@ -69,15 +79,20 @@ def plot_actual_vs_predicted(
     # 设置图例和刻度样式
     ax.legend(frameon=False, fontsize=20, loc='upper left')
     ax.tick_params(
-        axis='both', which='both', 
-        length=5, width=2, 
-        colors='black', labelsize=16
+        axis='both', which='major', 
+        length=5, width=1, 
+        colors='black', labelsize=18
+    )
+    ax.tick_params(
+        axis='both', which='minor', 
+        length=3, width=0.8, 
+        colors='black'
     )
 
     # 设置边框样式
     for spine in ax.spines.values():
         spine.set_visible(True)
-        spine.set_linewidth(2)
+        spine.set_linewidth(1)
         spine.set_color('black')
 
     # 保存图形

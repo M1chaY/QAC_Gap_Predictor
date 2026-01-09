@@ -45,6 +45,10 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DATA_DIR = PROJECT_ROOT / "data"
 MODEL_DIR = PROJECT_ROOT / "models"
 
+# 子目录路径
+LOG_DIR = MODEL_DIR / "log"
+PARAMS_DIR = MODEL_DIR / "params"
+
 # 固定随机种子
 RANDOM_SEED = 42
 
@@ -346,7 +350,8 @@ def run_hyperparameter_search(
     set_seed(RANDOM_SEED)
     
     # 设置日志记录器
-    logger = setup_training_logger(MODEL_DIR, log_name="optuna_search")
+    LOG_DIR.mkdir(exist_ok=True, parents=True)
+    logger = setup_training_logger(LOG_DIR, log_name="optuna_search")
     
     print("\n" + "=" * 60)
     print("Loading dataset")
@@ -429,7 +434,7 @@ def run_hyperparameter_search(
                 
                 # 发现更优结果，保存中间结果
                 save_intermediate_results(
-                    study, dataset_info, search_info, MODEL_DIR
+                    study, dataset_info, search_info, PARAMS_DIR
                 )
                 print(f"  [Auto-saved] Best config updated (Val MAE: {trial.value:.4f})")
             else:
@@ -439,7 +444,8 @@ def run_hyperparameter_search(
                 print(f"\nSearch early stopped: No improvement for {self.patience} trials")
                 study.stop()
     
-    search_callback = SearchCallback(patience=50)
+    # 搜索早停设置
+    search_callback = SearchCallback(patience=30)
     
     study.optimize(
         objective, 
@@ -593,7 +599,8 @@ def main():
     )
     
     # 保存结果
-    json_path, md_path = save_optuna_results(results, MODEL_DIR)
+    PARAMS_DIR.mkdir(exist_ok=True, parents=True)
+    json_path, md_path = save_optuna_results(results, PARAMS_DIR)
     print(f"\nJSON config saved: {json_path}")
     print(f"Markdown report saved: {md_path}")
     

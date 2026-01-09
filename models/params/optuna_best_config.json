@@ -1,0 +1,54 @@
+{
+  "search_info": {
+    "n_trials": 200,
+    "num_epochs_per_trial": 200,
+    "patience": 30,
+    "batch_size": 64,
+    "random_seed": 42,
+    "base_unit": 16,
+    "multiplier_range": [
+      1,
+      8
+    ],
+    "dataset_path": "D:\\Github\\R4N_Gap_Predictor\\data\\qm9_prepared.joblib",
+    "timestamp": "2026-01-08T02:26:26.073383"
+  },
+  "dataset_info": {
+    "total_samples": 30902,
+    "train_samples": 21631,
+    "val_samples": 4635,
+    "test_samples": 4636,
+    "num_node_features": 9,
+    "num_edge_features": 1,
+    "num_global_features": 3
+  },
+  "best_params": {
+    "gat_dims": [
+      96,
+      112,
+      96
+    ],
+    "mlp_dims": [
+      112,
+      112,
+      64,
+      128,
+      128
+    ],
+    "num_heads": 8,
+    "dropout": 0.1,
+    "lr": 0.0015307382258314657,
+    "weight_decay": 0.0006803597486598353
+  },
+  "best_performance": {
+    "val_mae": 0.1629602313041687,
+    "test_r2": 0.9535917043685913,
+    "test_mae": 0.18284578621387482,
+    "test_rmse": 0.25641366839408875
+  },
+  "study_statistics": {
+    "n_completed_trials": 172,
+    "n_pruned_trials": 79,
+    "model_parameters": 91777
+  }
+}

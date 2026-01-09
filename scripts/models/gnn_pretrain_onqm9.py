@@ -25,8 +25,6 @@ from src import (
     GapPredictionGNN, 
     train_epoch, 
     evaluate, 
-    plot_loss_curves,
-    plot_actual_vs_predicted,
     set_seed,
     split_dataset
 )
@@ -37,6 +35,7 @@ warnings.filterwarnings("ignore", message=".*torch-scatter.*")
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DATA_DIR = PROJECT_ROOT / "data"
 MODEL_DIR = PROJECT_ROOT / "models"
+PARAMS_DIR = MODEL_DIR / "params"
 
 # 固定随机种子（与搜索阶段一致）
 RANDOM_SEED = 42
@@ -203,7 +202,7 @@ def pretrain_on_qm9(
         model.load_state_dict(best_state)
         
         # 保存模型
-        model_path = MODEL_DIR / "qm9_pretrained.pt"
+        model_path = MODEL_DIR / "qm9_pretrained.pt"  # 模型保存在models根目录
         torch.save({
             'epoch': best_epoch,
             'model_state_dict': model.state_dict(),
@@ -243,29 +242,25 @@ def pretrain_on_qm9(
         else:
             print("  Status: May need regularization")
         
-        # 绘制损失曲线
+        # 保存训练历史
         print("\n" + "=" * 60)
-        print("Generating plots")
+        print("Saving training history")
         print("=" * 60)
         
-        loss_plot_path = MODEL_DIR / "qm9_pretrain_loss_curve.png"
-        plot_loss_curves(
-            train_losses=train_losses,
-            test_losses=val_losses,
-            save_path=loss_plot_path,
-            title="QM9 Pretraining: Train vs Validation Loss"
+        history_path = PARAMS_DIR / "qm9_pretrain_history.npz"
+        history_path.parent.mkdir(exist_ok=True, parents=True)
+        np.savez(
+            history_path,
+            train_losses=np.array(train_losses),
+            val_losses=np.array(val_losses),
+            best_epoch=best_epoch,
+            best_val_mae=best_val_mae,
+            test_r2=test_r2,
+            test_mae=test_mae,
+            test_rmse=test_rmse
         )
-        print(f"Loss curve saved: {loss_plot_path}")
-        
-        # 绘制预测散点图
-        scatter_plot_path = MODEL_DIR / "qm9_pretrain_scatter.png"
-        plot_actual_vs_predicted(
-            actual=targets,
-            predicted=predictions,
-            save_path=scatter_plot_path,
-            title="QM9 Pretraining: Actual vs Predicted"
-        )
-        print(f"Scatter plot saved: {scatter_plot_path}")
+        print(f"Training history saved: {history_path}")
+        print("\nRun plot_pretrain_results.py to generate plots.")
         
         return True
         
@@ -286,7 +281,7 @@ def main():
     MODEL_DIR.mkdir(exist_ok=True, parents=True)
     
     # 检查配置文件
-    config_path = MODEL_DIR / "optuna_best_config.json"
+    config_path = PARAMS_DIR / "optuna_best_config.json"
     
     if not config_path.exists():
         print(f"\nConfig file not found: {config_path}")
@@ -325,8 +320,7 @@ def main():
         print("=" * 60)
         print(f"\nGenerated files:")
         print(f"  {MODEL_DIR / 'qm9_pretrained.pt'} - Pretrained model")
-        print(f"  {MODEL_DIR / 'qm9_pretrain_loss_curve.png'} - Loss curve")
-        print(f"  {MODEL_DIR / 'qm9_pretrain_scatter.png'} - Scatter plot")
+        print(f"  {MODEL_DIR / 'params' / 'qm9_pretrain_history.npz'} - Training history")
     else:
         print("\n" + "=" * 60)
         print("Pretraining failed!")
