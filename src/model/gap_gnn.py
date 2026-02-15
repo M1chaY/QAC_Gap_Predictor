@@ -28,6 +28,7 @@ class GapPredictionGNN(torch.nn.Module):
         num_node_features: 节点特征维度
         gat_dims: GAT每层维度列表，如[64, 32]表示2层
         mlp_dims: MLP每层维度列表，如[128, 64, 32]表示3层（不含输出层）
+        num_edge_features: 边特征维度（默认1，键级特征）
         num_global_features: 全局分子描述符数量（默认3）
         num_heads: GAT注意力头数（默认4）
         dropout: Dropout概率（默认0.2）
@@ -38,6 +39,7 @@ class GapPredictionGNN(torch.nn.Module):
         num_node_features: int,
         gat_dims: List[int],
         mlp_dims: List[int],
+        num_edge_features: int = 1,
         num_global_features: int = 3, 
         num_heads: int = 4,
         dropout: float = 0.2
@@ -54,6 +56,7 @@ class GapPredictionGNN(torch.nn.Module):
         
         self.gat_dims = gat_dims
         self.mlp_dims = mlp_dims
+        self.num_edge_features = num_edge_features
         self.num_heads = num_heads
         self.num_global_features = num_global_features
         self.dropout_rate = dropout
@@ -62,11 +65,12 @@ class GapPredictionGNN(torch.nn.Module):
         self.gat_layers = nn.ModuleList()
         self.gat_bns = nn.ModuleList()
         
-        # 第一层GAT：输入特征 -> gat_dims[0]
+        # 第一层GAT：输入特征 -> gat_dims[0]，包含边特征
         self.gat_layers.append(GATConv(
             num_node_features, 
             gat_dims[0] // num_heads, 
             heads=num_heads, 
+            edge_dim=num_edge_features,
             dropout=dropout
         ))
         self.gat_bns.append(nn.BatchNorm1d(gat_dims[0]))
@@ -77,6 +81,7 @@ class GapPredictionGNN(torch.nn.Module):
                 gat_dims[i-1], 
                 gat_dims[i] // num_heads, 
                 heads=num_heads, 
+                edge_dim=num_edge_features,
                 dropout=dropout
             ))
             self.gat_bns.append(nn.BatchNorm1d(gat_dims[i]))
@@ -107,16 +112,17 @@ class GapPredictionGNN(torch.nn.Module):
         前向传播。
         
         Args:
-            data: PyG Data对象，需包含x, edge_index, batch, 可选u
+            data: PyG Data对象，需包含x, edge_index, edge_attr, batch, 可选u
             
         Returns:
             torch.Tensor: 预测的Gap值，形状为(batch_size, 1)
         """
         x, edge_index, batch = data.x, data.edge_index, data.batch
+        edge_attr = data.edge_attr if hasattr(data, 'edge_attr') else None
         
-        # GAT层前向传播
+        # GAT层前向传播（包含边特征）
         for i, (gat, bn) in enumerate(zip(self.gat_layers, self.gat_bns)):
-            x = gat(x, edge_index)
+            x = gat(x, edge_index, edge_attr=edge_attr)
             x = bn(x)
             x = F.elu(x)
             if i < len(self.gat_layers) - 1:
@@ -144,7 +150,13 @@ class GapPredictionGNN(torch.nn.Module):
         return x
     
     @classmethod
-    def from_config(cls, config: dict, num_node_features: int, num_global_features: int):
+    def from_config(
+        cls, 
+        config: dict, 
+        num_node_features: int, 
+        num_global_features: int,
+        num_edge_features: int = 1
+    ):
         """
         从配置字典创建模型。
         
@@ -152,6 +164,7 @@ class GapPredictionGNN(torch.nn.Module):
             config: 包含模型超参数的字典
             num_node_features: 节点特征维度
             num_global_features: 全局特征维度
+            num_edge_features: 边特征维度（默认1）
             
         Returns:
             GapPredictionGNN: 模型实例
@@ -160,6 +173,7 @@ class GapPredictionGNN(torch.nn.Module):
             num_node_features=num_node_features,
             gat_dims=config['gat_dims'],
             mlp_dims=config['mlp_dims'],
+            num_edge_features=num_edge_features,
             num_global_features=num_global_features,
             num_heads=config.get('num_heads', 4),
             dropout=config.get('dropout', 0.2)

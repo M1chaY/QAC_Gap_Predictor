@@ -1,7 +1,7 @@
 # Dataset Preparation Scripts
 
 This directory contains scripts for preparing and processing datasets
-for the R4N Gap Predictor project.
+for the QAC Gap Predictor project.
 
 ## Scripts Overview
 
@@ -21,13 +21,13 @@ Usage:
 python scripts/dataset_preparation/dataset_qm9_workflow.py
 ```
 
-### dataset_r4n_workflow.py
+### dataset_qac_workflow.py
 
-Interactive workflow script for R4N+ cation dataset preparation.
+Interactive workflow script for QAC cation dataset preparation.
 
 Features:
 
-- Generate R4N+ quaternary ammonium compounds (basic, no PubChem)
+- Generate QAC quaternary ammonium compounds (basic, no PubChem)
 - Step-by-step PubChem validation pipeline:
   - Step 1: CID validation with MD5 checksum
   - Step 2: Property fetching (IUPAC name, molecular weight, etc.)
@@ -38,7 +38,7 @@ Features:
 Usage:
 
 ```bash
-python scripts/dataset_preparation/dataset_r4n_workflow.py
+python scripts/dataset_preparation/dataset_qac_workflow.py
 ```
 
 Programmatic usage for step-by-step validation:
@@ -60,7 +60,7 @@ step3_query_halide_cas("output_with_props.csv", "output_with_cas.csv")
 run_full_validation_pipeline("input.csv", verbose=True)
 ```
 
-### structure_r4n_generation.py
+### structure_qac_generation.py
 
 Script for generating 3D molecular structure files (.mol) from SMILES.
 
@@ -73,7 +73,7 @@ Features:
 Usage:
 
 ```bash
-python scripts/dataset_preparation/structure_r4n_generation.py
+python scripts/dataset_preparation/structure_qac_generation.py
 ```
 
 ## Dependencies
@@ -87,5 +87,5 @@ These scripts require the `src` module and the following packages:
 ## Output Locations
 
 - QM9 data: `data/qm9/`
-- R4N data: `data/r4n/`
-- Molecular structures: `data/r4n/mol_files/`
+- QAC data: `data/qac/`
+- Molecular structures: `data/qac/mol_files/`

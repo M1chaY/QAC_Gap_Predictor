@@ -17,11 +17,11 @@
 ### 加载数据集
 
 ```python
-from src.dataset import R4NGapDataset, PreparedGraphDataset
+from src.dataset import QACGapDataset, PreparedGraphDataset
 from torch_geometric.loader import DataLoader
 
 # 从CSV加载
-dataset = R4NGapDataset("data/qm9_prepared.csv")
+dataset = QACGapDataset("data/qm9_prepared.csv")
 
 # 从joblib加载
 dataset = PreparedGraphDataset("data/qm9_prepared.joblib")

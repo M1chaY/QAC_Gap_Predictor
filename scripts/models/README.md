@@ -26,8 +26,8 @@ python scripts/models/gnn_pretrain_onqm9.py
 | ---- | ---- |
 | `optuna_gnn_framework.py` | Optuna 超参数搜索框架 |
 | `gnn_pretrain_onqm9.py` | QM9 数据集预训练脚本 |
-| `finetune_gnn.py` | R4N 数据集微调脚本 |
-| `r4n_gap_predictor.py` | Gap 预测应用脚本 |
+| `finetune_gnn.py` | QAC 数据集微调脚本 |
+| `qac_gap_predictor.py` | Gap 预测应用脚本 |
 | `pretrain_gnn.py` | (已废弃) 旧版预训练脚本 |
 
 ## 超参数搜索 (optuna_gnn_framework.py)

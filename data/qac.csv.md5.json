@@ -1,0 +1,12 @@
+{
+  "file_name": "qac.csv",
+  "md5": "57aa195546cecc12f755d3277ef2c238",
+  "size_bytes": 8342,
+  "created_at": "2026-02-01T16:55:24.239716",
+  "metadata": {
+    "type": "qac_preprocessed",
+    "total_samples": 124,
+    "smiles_col": "SMILES",
+    "target_col": "gap"
+  }
+}

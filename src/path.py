@@ -4,4 +4,4 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = PROJECT_ROOT / "data"
 QM9_DIR = DATA_DIR / "qm9"
-R4N_DIR = DATA_DIR / "r4n"
+QAC_DIR = DATA_DIR / "qac"

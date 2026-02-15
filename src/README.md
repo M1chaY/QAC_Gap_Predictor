@@ -1,6 +1,6 @@
 # src - 源代码目录
 
-本目录包含 R4N Gap Predictor 项目的核心源代码。
+本目录包含 QAC Gap Predictor 项目的核心源代码。
 
 ## 目录结构
 
@@ -10,7 +10,7 @@ src/
 ├── path.py              # 项目路径配置
 ├── data/                # 数据处理模块
 │   ├── qm9/             # QM9 数据集处理
-│   └── r4n/             # R4N 数据集生成
+│   └── qac/             # QAC 数据集生成
 ├── molecule/            # 分子处理模块
 ├── io/                  # 文件IO模块
 ├── dataset/             # 数据集封装模块
@@ -22,7 +22,7 @@ src/
 | 模块 | 功能 |
 | ---- | ---- |
 | `data/qm9/` | QM9 数据集加载、提取、过滤和预处理 |
-| `data/r4n/` | R4N 季铵离子化合物生成和验证 |
+| `data/qac/` | QAC 季铵离子化合物生成和验证 |
 | `molecule/` | 3D 分子构建、图转换、特征计算 |
 | `io/` | 文件加载、数据验证、数据集保存 |
 | `dataset/` | PyTorch Geometric 数据集封装 |
@@ -34,13 +34,13 @@ src/
 from src import (
     # QM9 数据处理
     extract_qm9,
-    # R4N 数据生成
-    R4NGenerator,
+    # QAC 数据生成
+    QACGenerator,
     # 分子处理
     build_3d_mol,
     mol_to_graph,
     # 数据集
-    R4NGapDataset,
+    QACGapDataset,
     PreparedGraphDataset,
     # 模型
     GapPredictionGNN,

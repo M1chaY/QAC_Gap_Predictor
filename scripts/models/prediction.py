@@ -1,7 +1,7 @@
 """
-R4N Gap预测脚本
+QAC Gap预测脚本
 
-使用微调后的GNN模型对R4N数据集进行Gap预测。
+使用微调后的GNN模型对QAC数据集进行Gap预测。
 读取Excel文件，为每个分子生成图数据并预测Gap值。
 """
 
@@ -136,7 +136,7 @@ def predict_gaps(model, df: pd.DataFrame, device: torch.device) -> list:
 def main():
     """主函数。"""
     print("=" * 60)
-    print("R4N Gap Prediction Script")
+    print("QAC Gap Prediction Script")
     print("=" * 60)
     
     set_seed(RANDOM_SEED)
@@ -144,9 +144,9 @@ def main():
     print(f"\nDevice: {device}")
     
     # 文件路径
-    input_path = DATA_DIR / "r4n" / "r4n_gap.xlsx"
-    model_path = MODEL_DIR / "r4n_finetuned.pt"
-    output_path = MODEL_DIR / "r4n_c20_gap.csv"
+    input_path = DATA_DIR / "qac" / "qac_gap.xlsx"
+    model_path = MODEL_DIR / "qac_finetuned.pt"
+    output_path = MODEL_DIR / "qac_c20_gap.csv"
     
     # 检查文件
     if not input_path.exists():
@@ -156,7 +156,7 @@ def main():
     if not model_path.exists():
         print(f"Error: Model not found: {model_path}")
         print("Please run finetuning first:")
-        print("  python scripts/models/gnn_finetune_onr4n.py")
+        print("  python scripts/models/gnn_finetune_onqac.py")
         sys.exit(1)
     
     # 加载模型

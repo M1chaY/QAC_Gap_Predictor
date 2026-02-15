@@ -92,7 +92,7 @@ def load_graph_dataset(
     return data_list
 
 
-class R4NGapDataset(Dataset):
+class QACGapDataset(Dataset):
     """基于CSV的图数据集封装，支持缓存。"""
 
     def __init__(

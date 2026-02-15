@@ -7,7 +7,7 @@
 
 支持两种模型的可视化：
 1. QM9预训练模型
-2. R4N微调模型
+2. QAC微调模型
 
 运行脚本后会提示选择要可视化的模型。
 """
@@ -56,13 +56,13 @@ MODEL_CONFIGS = {
         "train_script": "python scripts/models/gnn_pretrain_onqm9.py"
     },
     "finetune": {
-        "model_path": MODEL_DIR / "r4n_finetuned.pt",
-        "history_path": PARAMS_DIR / "r4n_finetune_history.npz",
-        "dataset_path": DATA_DIR / "r4n_prepared.joblib",
-        "loss_plot_name": "r4n_finetune_loss_curve.png",
-        "scatter_plot_name": "r4n_finetune_scatter.png",
-        "title_prefix": "R4N Finetuning",
-        "train_script": "python scripts/models/gnn_finetune_onr4n.py"
+        "model_path": MODEL_DIR / "qac_finetuned.pt",
+        "history_path": PARAMS_DIR / "qac_finetune_history.npz",
+        "dataset_path": DATA_DIR / "qac_prepared.joblib",
+        "loss_plot_name": "qac_finetune_loss_curve.png",
+        "scatter_plot_name": "qac_finetune_scatter.png",
+        "title_prefix": "QAC Finetuning",
+        "train_script": "python scripts/models/gnn_finetune_onqac.py"
     }
 }
 
@@ -84,7 +84,7 @@ def plot_training_history(history_path: Path, config: dict) -> None:
     
     # 根据模型类型获取对应的loss字段
     if "epoch_train_losses" in history.files:
-        # R4N finetune格式
+        # QAC finetune格式
         train_losses = history['epoch_train_losses']
         val_losses = history['epoch_val_losses']
         best_epoch = int(history['best_epoch'])
@@ -167,7 +167,7 @@ def load_model_and_evaluate(
     is_finetune = (model_type == "finetune")
     
     if is_finetune:
-        # R4N微调：使用与训练相同的划分方式
+        # QAC微调：使用与训练相同的划分方式
         np.random.seed(RANDOM_SEED)
         all_indices = np.random.permutation(len(dataset))
         num_samples = checkpoint.get('finetune_info', {}).get('num_samples', 100)
@@ -259,7 +259,7 @@ def select_model_type() -> str:
     """
     print("\nSelect model to visualize:")
     print("  1. QM9 Pretrained Model")
-    print("  2. R4N Finetuned Model")
+    print("  2. QAC Finetuned Model")
     print()
     
     while True:

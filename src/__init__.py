@@ -1,9 +1,9 @@
 """
-R4N Gap Predictor - 季铵离子 HOMO-LUMO Gap 预测包
+QAC Gap Predictor - 季铵离子 HOMO-LUMO Gap 预测包
 
 主要功能模块:
 - data/qm9: QM9 数据集处理
-- data/r4n: R4N 数据集生成
+- data/qac: QAC 数据集生成
 - molecule: 分子构建与图转换
 - io: 文件读写与数据验证
 - dataset: 数据集封装与转换
@@ -21,23 +21,23 @@ from src.data.qm9.preprocessor import (
 )
 from src.data.qm9.pipeline import extract_qm9
 
-# ==================== R4N 数据处理 ====================
-from src.data.r4n.generator import R4NGenerator
-from src.data.r4n.smiles_builder import build_r4n_smiles
-from src.data.r4n.alkyl_groups import generate_alkyl_groups
-from src.data.r4n.molecule_validator import validate_r4n_molecule, get_canonical_smiles
-from src.data.r4n.pubchem_query import (
+# ==================== QAC 数据处理 ====================
+from src.data.qac.generator import QACGenerator
+from src.data.qac.smiles_builder import build_qac_smiles
+from src.data.qac.alkyl_groups import generate_alkyl_groups
+from src.data.qac.molecule_validator import validate_qac_molecule, get_canonical_smiles
+from src.data.qac.pubchem_query import (
     validate_pubchem_compound,
     add_halide_to_smiles,
     get_cas_number,
 )
-from src.data.r4n.cleaner import clean_r4n_dataset
-from src.data.r4n.statistics import print_statistics, save_compounds_to_csv
-from src.data.r4n.step1_cid import step1_validate_cid
-from src.data.r4n.step2_properties import step2_add_properties
-from src.data.r4n.step3_halide_cas import step3_query_halide_cas
-from src.data.r4n.pubchem_pipeline import run_full_validation_pipeline
-from src.data.r4n.preprocessor import preprocess_r4n_dataset
+from src.data.qac.cleaner import clean_qac_dataset
+from src.data.qac.statistics import print_statistics, save_compounds_to_csv
+from src.data.qac.step1_cid import step1_validate_cid
+from src.data.qac.step2_properties import step2_add_properties
+from src.data.qac.step3_halide_cas import step3_query_halide_cas
+from src.data.qac.pubchem_pipeline import run_full_validation_pipeline
+from src.data.qac.preprocessor import preprocess_qac_dataset
 
 # ==================== 分子处理 ==
 from src.molecule.builder import build_3d_mol
@@ -67,7 +67,7 @@ from src.io.training_logger import (
 )
 
 # ==================== 数据集封装 ====================
-from src.dataset.csv_loader import load_graph_dataset, R4NGapDataset
+from src.dataset.csv_loader import load_graph_dataset, QACGapDataset
 from src.dataset.joblib_loader import load_prepared_dataset, PreparedGraphDataset
 from src.dataset.pipeline import convert_smiles_to_graphs
 from src.dataset.feature_pipeline import compute_global_features
@@ -92,23 +92,23 @@ __all__ = [
     "compute_molecular_descriptors",
     "preprocess_qm9_dataset",
     "extract_qm9",
-    # R4N 数据处理
-    "R4NGenerator",
-    "build_r4n_smiles",
+    # QAC 数据处理
+    "QACGenerator",
+    "build_qac_smiles",
     "generate_alkyl_groups",
-    "validate_r4n_molecule",
+    "validate_qac_molecule",
     "get_canonical_smiles",
     "validate_pubchem_compound",
     "add_halide_to_smiles",
     "get_cas_number",
-    "clean_r4n_dataset",
+    "clean_qac_dataset",
     "print_statistics",
     "save_compounds_to_csv",
     "step1_validate_cid",
     "step2_add_properties",
     "step3_query_halide_cas",
     "run_full_validation_pipeline",
-    "preprocess_r4n_dataset",
+    "preprocess_qac_dataset",
     # 分子处理
     "build_3d_mol",
     "mol_to_graph",
@@ -131,7 +131,7 @@ __all__ = [
     "log_search_summary",
     # 数据集封装
     "load_graph_dataset",
-    "R4NGapDataset",
+    "QACGapDataset",
     "load_prepared_dataset",
     "PreparedGraphDataset",
     "convert_smiles_to_graphs",
